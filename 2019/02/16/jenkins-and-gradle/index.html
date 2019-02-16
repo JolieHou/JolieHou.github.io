@@ -5,19 +5,22 @@
   
 
   
-  <title>Hello World | Hexo</title>
+  <title>jenkins使用gradle导致的问题 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="问题描述android studio的build apk没有问题，但命令行中执行gradle build就会报错。并且命令行中检查gradle版本和android studio的版本是一样的。 幸运的是同事的电脑上，没有这个问题。android sdk的版本是一样的。今天抽时间比对他电脑和我电脑上的差异，总算发现问题所在，原来使用的java不一样。">
+<meta name="keywords" content="jenkins gradle">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2019/01/11/hello-world/index.html">
+<meta property="og:title" content="jenkins使用gradle导致的问题">
+<meta property="og:url" content="http://yoursite.com/2019/02/16/jenkins-and-gradle/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="问题描述android studio的build apk没有问题，但命令行中执行gradle build就会报错。并且命令行中检查gradle版本和android studio的版本是一样的。 幸运的是同事的电脑上，没有这个问题。android sdk的版本是一样的。今天抽时间比对他电脑和我电脑上的差异，总算发现问题所在，原来使用的java不一样。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-01-11T14:21:49.902Z">
+<meta property="og:image" content="http://jolie.oss-cn-hangzhou.aliyuncs.com/jdk.jpg">
+<meta property="og:updated_time" content="2019-02-16T05:12:51.684Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="jenkins使用gradle导致的问题">
+<meta name="twitter:description" content="问题描述android studio的build apk没有问题，但命令行中执行gradle build就会报错。并且命令行中检查gradle版本和android studio的版本是一样的。 幸运的是同事的电脑上，没有这个问题。android sdk的版本是一样的。今天抽时间比对他电脑和我电脑上的差异，总算发现问题所在，原来使用的java不一样。">
+<meta name="twitter:image" content="http://jolie.oss-cn-hangzhou.aliyuncs.com/jdk.jpg">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -64,10 +67,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-hello-world" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-jenkins-and-gradle" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/01/11/hello-world/" class="article-date">
-  <time datetime="2019-01-11T14:21:49.902Z" itemprop="datePublished">2019-01-11</time>
+    <a href="/2019/02/16/jenkins-and-gradle/" class="article-date">
+  <time datetime="2019-02-15T16:00:00.000Z" itemprop="datePublished">2019-02-16</time>
 </a>
     
   </div>
@@ -78,7 +81,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Hello World
+      jenkins使用gradle导致的问题
     </h1>
   
 
@@ -86,37 +89,33 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>android studio的build apk没有问题，但命令行中执行<code>gradle build</code>就会报错。<br>并且命令行中检查gradle版本和android studio的版本是一样的。</p>
+<p>幸运的是同事的电脑上，没有这个问题。android sdk的版本是一样的。<br>今天抽时间比对他电脑和我电脑上的差异，总算发现问题所在，原来使用的java不一样。</p>
+<a id="more"></a>
+<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><p><div align="left"><br><img width="300" src="http://jolie.oss-cn-hangzhou.aliyuncs.com/jdk.jpg"><br></div><br>在android studio中有这么一个配置的地方。如果勾选这里，android studio在编译的时候会用这的JDK。但在命令行，会直接用环境变量中定义的JDK。<br>我尝试着将环境变量里面的JDK换成了as的内嵌JDK。果然奇迹发生了。难以置信的一刻！</p>
+<h3 id="另一个问题"><a href="#另一个问题" class="headerlink" title="另一个问题"></a>另一个问题</h3><p>起初，我是在一个windows上部署jenkins。事后特别麻烦，尤其是调用某些环境变量，总遇到不能调用的问题。而环境变量是成功生效的。检查原因是由于启动jenkins进程的用户权限问题。<br>你在jenkins中增加一个bat脚本，<code>echo whoami</code>。<br>检查输出的用户是否正确。</p>
+<p>后来通过windows管理器，找到jenkins服务器，修改他的启动权限和用户权限。</p>
+<p>总之，如果有Ubuntu还是在这上面部署jenkins吧，省事省力省心。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/01/11/hello-world/" data-id="cjs70f9cl0001wnxo6jks9xxs" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/02/16/jenkins-and-gradle/" data-id="cjs70f9cy0003wnxo19khyf2n" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins-gradle/">jenkins gradle</a></li></ul>
+
     </footer>
   </div>
   
     
 <nav id="article-nav">
   
-    <a href="/2019/01/13/2019第一篇博文/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          2019第一篇博文
-        
-      </div>
-    </a>
   
+    <a href="/2019/01/20/noone-game/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">尚未命名的游戏</div>
+    </a>
   
 </nav>
 
