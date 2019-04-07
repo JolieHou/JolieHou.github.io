@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="简单的认识一下cortoutinelua中有一个令初学者头疼的概念，协程。我们在tencent的xlua的代码中也可以看到他的身影。今天我就准备好好整理一下这个东西。用更浅显易懂的说法让大家更快更好的理解。 首先从协程的名字上，我们就可以知道他是协助，协作的一种程序。虽然他的类型是线程。但是实际上他不是异步线程。它和主线程之间无缝切换。没有线程切换的开销。所以把他当做一个子程序理解更容易些。 我们">
+<meta name="keywords" content="lua cortoutine">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua协程笔记">
+<meta property="og:url" content="http://bsi.me/2019/04/07/lua-coroutine/index.html">
+<meta property="og:site_name" content="硅步致千里">
+<meta property="og:description" content="简单的认识一下cortoutinelua中有一个令初学者头疼的概念，协程。我们在tencent的xlua的代码中也可以看到他的身影。今天我就准备好好整理一下这个东西。用更浅显易懂的说法让大家更快更好的理解。 首先从协程的名字上，我们就可以知道他是协助，协作的一种程序。虽然他的类型是线程。但是实际上他不是异步线程。它和主线程之间无缝切换。没有线程切换的开销。所以把他当做一个子程序理解更容易些。 我们">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://jolie.oss-cn-hangzhou.aliyuncs.com/17_07_24__04_06_2019.jpg">
+<meta property="og:updated_time" content="2019-04-07T07:19:21.951Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="lua协程笔记">
+<meta name="twitter:description" content="简单的认识一下cortoutinelua中有一个令初学者头疼的概念，协程。我们在tencent的xlua的代码中也可以看到他的身影。今天我就准备好好整理一下这个东西。用更浅显易懂的说法让大家更快更好的理解。 首先从协程的名字上，我们就可以知道他是协助，协作的一种程序。虽然他的类型是线程。但是实际上他不是异步线程。它和主线程之间无缝切换。没有线程切换的开销。所以把他当做一个子程序理解更容易些。 我们">
+<meta name="twitter:image" content="http://jolie.oss-cn-hangzhou.aliyuncs.com/17_07_24__04_06_2019.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>lua协程笔记</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2019/03/03/scrapy-learning/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2019/04/07/lua-coroutine/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2019/04/07/lua-coroutine/&text=lua协程笔记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2019/04/07/lua-coroutine/&is_video=false&description=lua协程笔记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=lua协程笔记&body=Check out this article: http://bsi.me/2019/04/07/lua-coroutine/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2019/04/07/lua-coroutine/&name=lua协程笔记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的认识一下cortoutine"><span class="toc-number">1.</span> <span class="toc-text">简单的认识一下cortoutine</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行过程讲解"><span class="toc-number">2.</span> <span class="toc-text">执行过程讲解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#来点有难度的"><span class="toc-number">3.</span> <span class="toc-text">来点有难度的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小惊喜"><span class="toc-number">4.</span> <span class="toc-text">小惊喜</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        lua协程笔记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">硅步致千里</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-04-07T07:12:58.000Z" itemprop="datePublished">2019-04-07</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/lua-cortoutine/">lua cortoutine</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="简单的认识一下cortoutine"><a href="#简单的认识一下cortoutine" class="headerlink" title="简单的认识一下cortoutine"></a>简单的认识一下cortoutine</h2><p>lua中有一个令初学者头疼的概念，协程。我们在tencent的<code>xlua</code>的代码中也可以看到他的身影。<br>今天我就准备好好整理一下这个东西。用更浅显易懂的说法让大家更快更好的理解。</p>
+<p>首先从协程的名字上，我们就可以知道他是协助，协作的一种程序。虽然他的类型是线程。但是实际上他不是异步线程。它和主线程之间无缝切换。没有线程切换的开销。所以把他当做一个子程序理解更容易些。</p>
+<p>我们先看一个简单的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">function myfunction(param)</span><br><span class="line">  print(&quot;====myfunction=====start&quot;)</span><br><span class="line">  print(&quot;myfunction 参数&quot;,param)</span><br><span class="line">  print(&quot;准备第第一次挂起子程序&quot;)</span><br><span class="line">  local result = coroutine.yield(&quot;first yield&quot;)</span><br><span class="line">  print(&quot;first yield从主程序得到的结果&quot;,result)</span><br><span class="line">  print(&quot;准备第二次挂起子程序&quot;)</span><br><span class="line">  local result2 = coroutine.yield(&quot;second yield&quot;)</span><br><span class="line">  print(&quot;second 从主程序得到的结果&quot;,result2)</span><br><span class="line">  print(&quot;子程序执行结束&quot;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">local cor = coroutine.create(myfunction)</span><br><span class="line">print(&quot;start the coroutine&quot;)</span><br><span class="line">local status,result = coroutine.resume(cor,&quot;first resume&quot;)</span><br><span class="line">if status == true then</span><br><span class="line">  print(&quot;协程没有结束，first resume 从子程序得到结果是 &quot;,result)</span><br><span class="line">else</span><br><span class="line">  print(&quot;协程已经结束&quot;)</span><br><span class="line">  return</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">print(&quot;准备第二次resume子程序&quot;)</span><br><span class="line">status,result = coroutine.resume(cor,&quot;second resume&quot;)</span><br><span class="line">if status == true then</span><br><span class="line">  print(&quot;协程没有结束，second resume 从子程序得到结果是 &quot;,result)</span><br><span class="line">else</span><br><span class="line">  print(&quot;协程已经结束&quot;)</span><br><span class="line">  return</span><br><span class="line">end</span><br><span class="line">print(&quot;准备第三次resume子程序&quot;)</span><br><span class="line">status,result = coroutine.resume(cor,&quot;third resume&quot;)</span><br><span class="line">if status == true then</span><br><span class="line">  print(&quot;协程没有结束,third resume 从子程序得到结果是 &quot;,result)</span><br><span class="line">else</span><br><span class="line">  print(&quot;协程已经结束&quot;)</span><br><span class="line">  return</span><br><span class="line">end</span><br><span class="line">print(&quot;准备第四次resume子程序&quot;)</span><br><span class="line">status,result = coroutine.resume(cor,&quot;forth resume&quot;)</span><br><span class="line">if status == true then</span><br><span class="line">  print(&quot;协程没有结束,forth resume 从子程序得到结果是 &quot;,result)</span><br><span class="line">else</span><br><span class="line">  print(&quot;协程已经结束&quot;)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>上述程序的执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">start the coroutine</span><br><span class="line">====myfunction=====start</span><br><span class="line">myfunction 参数	first resume</span><br><span class="line">准备第第一次挂起子程序</span><br><span class="line">协程没有结束，first resume 从子程序得到结果是 first yield</span><br><span class="line">准备第二次resume子程序</span><br><span class="line">first yield从主程序得到的结果	second resume</span><br><span class="line">准备第二次挂起子程序</span><br><span class="line">协程没有结束，second resume 从子程序得到结果是 second yield</span><br><span class="line">准备第三次resume子程序</span><br><span class="line">second 从主程序得到的结果	third resume</span><br><span class="line">子程序执行结束</span><br><span class="line">协程没有结束,third resume 从子程序得到结果是 nil</span><br><span class="line">准备第四次resume子程序</span><br><span class="line">协程已经结束</span><br></pre></td></tr></table></figure>
+<h2 id="执行过程讲解"><a href="#执行过程讲解" class="headerlink" title="执行过程讲解"></a>执行过程讲解</h2><p><code>coroutine.create</code>创建了一个函数<code>myfunction</code>的子程序。myfunction函数自然没有执行。此时主程序开始执行的时候，遇到<code>resume</code>唤醒了子程序。此时正在执行的主程序，将控制权交给了子程序。自己处于不执行状态。子程序执行到<code>yield</code>的时候自己又被挂起。于是控制权又交还了主程序。于是主程序又开始执行。然后又遇到了<code>resume</code>。控制权又给了子程序，如此往复。直到子程序彻底结束了。</p>
+<p>这个流程很容易理解。于是有人就问，两个子程序之间看样子好像也可以出现传递函数啊？<br>答对了。是的。主程序执行resume唤醒子程序，第一个参数，是协程对象，不必说。第二个就是传递给子程序的参数。但是这个参数的传递位置比较特殊。</p>
+<p>函数被调用的时候，一般有函数入口。都是在函数执行的时候收到参数。但是协程的子程序不同。<code>resume</code>子程序，子程序是在上次没执行完的地方继续开始执行。那么上次没执行完，就是执行yield的时候。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local result = coroutine.yield(&quot;first yield&quot;)</span><br></pre></td></tr></table></figure>
+<p>此时执行赋值操作的右侧<code>yield</code>。继续执行的话，那么就要执行左侧。于是主程序<code>resume</code>的传递过来的参数就给了子程序<code>result</code>。<br>同理子程序yield的参数，也是同样的方法传递给了主程序。</p>
+<p>我将上面的步骤整理成流程图。<br><img src="http://jolie.oss-cn-hangzhou.aliyuncs.com/17_07_24__04_06_2019.jpg" alt="=w400"></p>
+<p>从上图我们能看到，其实主线程在一直在主程序和子程序之间来回切换。一直同步执行。没有发生异步。也就是一旦协程开始工作，主程序并没有工作。主程序开始工作，协程也挂起。实际应用中，比如http请求，我们发送了请求，请求没有回来之前可以让协程一直挂起。知道请求回来，在让协程工作。主程序挂起。</p>
+<h2 id="来点有难度的"><a href="#来点有难度的" class="headerlink" title="来点有难度的"></a>来点有难度的</h2><p>这么说下来很多人会说好像不难。但是实际使用的时候又是另一回事。因为协程的变化太多。往往不想上面代码中那么容易区分主程序和子程序。<br>例如<code>xlua中07_AsyncTest</code>的例子。我们来分析一下它的代码。<br>在xlua中，协程最关键的类是<code>util.async_to_sync</code><a href="https://github.com/Tencent/xLua/blob/master/Assets/XLua/Resources/xlua/util.lua.txt" target="_blank" rel="noopener">函数</a>。<br>所以我们结合一个07的这个例子来看一下它是怎么工作的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">local function async_to_sync(async_func, callback_pos)</span><br><span class="line">    return function(...)</span><br><span class="line">        local _co = coroutine.running() or error (&apos;this function must be run in coroutine&apos;)</span><br><span class="line">        local rets</span><br><span class="line">        local waiting = false</span><br><span class="line">        local function cb_func(...)</span><br><span class="line">            if waiting then</span><br><span class="line">                assert(coroutine.resume(_co, ...))</span><br><span class="line">            else</span><br><span class="line">                rets = &#123;...&#125;</span><br><span class="line">            end</span><br><span class="line">        end</span><br><span class="line">        local params = &#123;...&#125;</span><br><span class="line">        table.insert(params, callback_pos or (#params + 1), cb_func)</span><br><span class="line">        async_func(unpack(params))</span><br><span class="line">        if rets == nil then</span><br><span class="line">            waiting = true</span><br><span class="line">            rets = &#123;coroutine.yield()&#125;</span><br><span class="line">        end</span><br><span class="line">        </span><br><span class="line">        return unpack(rets)</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>首先<code>CS.MessageBox.ShowAlertBox</code>和<code>CS.MessageBox.ShowConfirmBox</code>都使用了协程。他们按钮的回调，会调用上面的<code>cb_func</code>函数。如果不点击按钮，<code>cb_func</code>就不执行。</p>
+<p>所以当我们弹框一个alertbox时候，上面函数会执行<code>async_func</code>用来绑定按钮回调。执行<code>rets==nil</code>的条件，<code>coroutine.yield()</code>回到主程序。等玩家点击了Button，然后在执行<code>coroutine.resume(_co, ...)</code>唤醒子程序，将结果返回给rets。<br>因此弹出框，子程序瞬间执行结束，然后返回主程序，主程序执行。等玩家点击按钮。唤醒子程序，然后将唤醒的结果返回给主程序。<br>就这么回事。</p>
+<p>他的购买流程就简单多了，开始执行charge(10)的时候，直接执行了<code>cb_func</code>函数，直接将<code>rets={...}</code>，上面传入的参数就是true，10。后面代码关于协程的一个没有执行。主程序将rets返回，<code>local r1, r2 = recharge(10)</code>。因此r1，r2才有值。</p>
+<h2 id="小惊喜"><a href="#小惊喜" class="headerlink" title="小惊喜"></a>小惊喜</h2><p>和协程相关的就说这么多吧。另外举一反三一下。在python中，尤其是python3中的协程和lua的功能是一样的。虽然python还和迭代器相关，那只是他们的实现方法不一样。本质上都是主程序和子程序互相切换执行。所以会了一种语言的协程，另外一种就像是买一赠一，好赚啊。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+    	
+	        <div id="disqus_thread">
+	            <noscript>Please enable JavaScript to view the comments.</noscript>
+	        </div>
+        
+		
+			<div class="vcomment"></div>
+		
+	</div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的认识一下cortoutine"><span class="toc-number">1.</span> <span class="toc-text">简单的认识一下cortoutine</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行过程讲解"><span class="toc-number">2.</span> <span class="toc-text">执行过程讲解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#来点有难度的"><span class="toc-number">3.</span> <span class="toc-text">来点有难度的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小惊喜"><span class="toc-number">4.</span> <span class="toc-text">小惊喜</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2019/04/07/lua-coroutine/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2019/04/07/lua-coroutine/&text=lua协程笔记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2019/04/07/lua-coroutine/&is_video=false&description=lua协程笔记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=lua协程笔记&body=Check out this article: http://bsi.me/2019/04/07/lua-coroutine/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2019/04/07/lua-coroutine/&title=lua协程笔记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2019/04/07/lua-coroutine/&name=lua协程笔记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+
+<!-- Valine Comments -->
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+<script type="text/javascript">
+    var notify = 'false' == true ? true : false;
+    var verify = 'false' == true ? true : false;
+    var GUEST_INFO = ['nick','mail','link'];
+    var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+      return GUEST_INFO.indexOf(item) > -1
+    });
+    guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+    new Valine({
+        el: '.vcomment',
+        notify: notify,
+        verify: verify,
+        appId: "dliMgeTOubtLe8wHJNuY46dt-gzGzoHsz",
+        appKey: "yaD5qqyR6lAUYllUokFlGExm",
+        avatar:"mm",
+        placeholder: "Just go go",
+        guest_info:guest_info,
+        pageSize:"10"
+    })
+</script>
+
+</body>
+</html>
