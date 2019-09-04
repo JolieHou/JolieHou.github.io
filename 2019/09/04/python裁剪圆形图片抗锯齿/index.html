@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="用python将一张图片裁剪成圆形，是很简单的。但是有个最大的问题就是总是出现锯齿。今天在Stack Overflow上搜了一下，果然有大神解决了这个问题。我看了一下源码，然后自己修改了一下，能够直接将一张图片，裁剪成圆形抗锯齿的图片。 对比如下两张图片即可看出区别： Stack Overflow的地址在此:https://stackoverflow.com/questions/32504246/">
+<meta name="keywords" content="python 抗锯齿">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python裁剪圆形图片抗锯齿">
+<meta property="og:url" content="http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/index.html">
+<meta property="og:site_name" content="硅步致千里">
+<meta property="og:description" content="用python将一张图片裁剪成圆形，是很简单的。但是有个最大的问题就是总是出现锯齿。今天在Stack Overflow上搜了一下，果然有大神解决了这个问题。我看了一下源码，然后自己修改了一下，能够直接将一张图片，裁剪成圆形抗锯齿的图片。 对比如下两张图片即可看出区别： Stack Overflow的地址在此:https://stackoverflow.com/questions/32504246/">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jolie.oss-cn-hangzhou.aliyuncs.com/%E9%9D%9E%E6%8A%97%E9%94%AF%E9%BD%BF.png">
+<meta property="og:image" content="https://jolie.oss-cn-hangzhou.aliyuncs.com/%E6%8A%97%E9%94%AF%E9%BD%BF.png">
+<meta property="og:updated_time" content="2019-09-04T10:50:30.009Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python裁剪圆形图片抗锯齿">
+<meta name="twitter:description" content="用python将一张图片裁剪成圆形，是很简单的。但是有个最大的问题就是总是出现锯齿。今天在Stack Overflow上搜了一下，果然有大神解决了这个问题。我看了一下源码，然后自己修改了一下，能够直接将一张图片，裁剪成圆形抗锯齿的图片。 对比如下两张图片即可看出区别： Stack Overflow的地址在此:https://stackoverflow.com/questions/32504246/">
+<meta name="twitter:image" content="https://jolie.oss-cn-hangzhou.aliyuncs.com/%E9%9D%9E%E6%8A%97%E9%94%AF%E9%BD%BF.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>python裁剪圆形图片抗锯齿</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2019/04/14/godot-tail/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&text=python裁剪圆形图片抗锯齿"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&is_video=false&description=python裁剪圆形图片抗锯齿"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python裁剪圆形图片抗锯齿&body=Check out this article: http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&name=python裁剪圆形图片抗锯齿&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        python裁剪圆形图片抗锯齿
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">硅步致千里</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-09-04T10:32:44.000Z" itemprop="datePublished">2019-09-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/python-抗锯齿/">python 抗锯齿</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>用python将一张图片裁剪成圆形，是很简单的。但是有个最大的问题就是总是出现锯齿。今天在Stack Overflow上搜了一下，果然有大神解决了这个问题。我看了一下源码，然后自己修改了一下，能够直接将一张图片，裁剪成圆形抗锯齿的图片。</p>
+<p>对比如下两张图片即可看出区别：<br><img src="https://jolie.oss-cn-hangzhou.aliyuncs.com/%E9%9D%9E%E6%8A%97%E9%94%AF%E9%BD%BF.png" alt="-w300"><img src="https://jolie.oss-cn-hangzhou.aliyuncs.com/%E6%8A%97%E9%94%AF%E9%BD%BF.png" alt="-w300"></p>
+<p>Stack Overflow的地址在此:<br><a href="https://stackoverflow.com/questions/32504246/draw-ellipse-in-python-pil-with-line-thickness" target="_blank" rel="noopener">https://stackoverflow.com/questions/32504246/draw-ellipse-in-python-pil-with-line-thickness</a></p>
+<p>修改之后的代码在此:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">import os, math</span><br><span class="line">import sys</span><br><span class="line">from PIL import Image, ImageDraw</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def draw_ellipse(image, bounds, width=1, outline=&apos;white&apos;, antialias=4):</span><br><span class="line">    &quot;&quot;&quot;Improved ellipse drawing function, based on PIL.ImageDraw.&quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">    # Use a single channel image (mode=&apos;L&apos;) as mask.</span><br><span class="line">    # The size of the mask can be increased relative to the imput image</span><br><span class="line">    # to get smoother looking results.</span><br><span class="line">    mask = Image.new(</span><br><span class="line">        size=[int(dim * antialias) for dim in image.size],</span><br><span class="line">        mode=&apos;L&apos;, color=&apos;black&apos;)</span><br><span class="line">    draw = ImageDraw.Draw(mask)</span><br><span class="line"></span><br><span class="line">    # draw outer shape in white (color) and inner shape in black (transparent)</span><br><span class="line">    for offset, fill in (width/-2.0, &apos;black&apos;), (width/2.0, &apos;white&apos;):</span><br><span class="line">        left, top = [(value + offset) * antialias for value in bounds[:2]]</span><br><span class="line">        right, bottom = [(value - offset) * antialias for value in bounds[2:]]</span><br><span class="line">        draw.ellipse([left, top, right, bottom], fill=fill)</span><br><span class="line"></span><br><span class="line">    # downsample the mask using PIL.Image.LANCZOS</span><br><span class="line">    # (a high-quality downsampling filter).</span><br><span class="line">    mask = mask.resize(image.size, Image.LANCZOS)</span><br><span class="line"></span><br><span class="line">    # paste outline color to input image through the mask</span><br><span class="line">    image.putalpha(mask)</span><br><span class="line"></span><br><span class="line">#</span><br><span class="line">def circle_new(fileName,finaleName):</span><br><span class="line">    ima = Image.open(fileName).convert(&quot;RGBA&quot;)</span><br><span class="line">    size = ima.size</span><br><span class="line">    r2 = min(size[0], size[1])</span><br><span class="line">    if size[0] != size[1]:</span><br><span class="line">        ima = ima.resize((r2, r2), Image.ANTIALIAS)</span><br><span class="line">    ellipse_box = [0,0,r2-2,r2-2]</span><br><span class="line">    draw_ellipse(ima, ellipse_box, width=1)</span><br><span class="line"></span><br><span class="line">    ima.save(&apos;%s.png&apos; % finaleName)</span><br><span class="line"></span><br><span class="line">dirName= sys.argv[1]</span><br><span class="line">imgCount = 0</span><br><span class="line">for root,dirNames,fileNames in os.walk(dirName):</span><br><span class="line">    for fileName in fileNames:</span><br><span class="line">        if fileName.split(&quot;.&quot;)[-1] in [&quot;jpg&quot;,&quot;png&quot;]:</span><br><span class="line">            fileFullPath = os.path.join(root,fileName)</span><br><span class="line">            circle_new(fileFullPath,imgCount)</span><br><span class="line">            # os.rename(fileFullPath,str(imgCount) + &quot;.&quot; + fileName.split(&quot;.&quot;)[-1])</span><br><span class="line">            imgCount += 1</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+    	
+	        <div id="disqus_thread">
+	            <noscript>Please enable JavaScript to view the comments.</noscript>
+	        </div>
+        
+		
+			<div class="vcomment"></div>
+		
+	</div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&text=python裁剪圆形图片抗锯齿"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&is_video=false&description=python裁剪圆形图片抗锯齿"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python裁剪圆形图片抗锯齿&body=Check out this article: http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&title=python裁剪圆形图片抗锯齿"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2019/09/04/python裁剪圆形图片抗锯齿/&name=python裁剪圆形图片抗锯齿&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+
+<!-- Valine Comments -->
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+<script type="text/javascript">
+    var notify = 'false' == true ? true : false;
+    var verify = 'false' == true ? true : false;
+    var GUEST_INFO = ['nick','mail','link'];
+    var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+      return GUEST_INFO.indexOf(item) > -1
+    });
+    guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+    new Valine({
+        el: '.vcomment',
+        notify: notify,
+        verify: verify,
+        appId: "dliMgeTOubtLe8wHJNuY46dt-gzGzoHsz",
+        appKey: "yaD5qqyR6lAUYllUokFlGExm",
+        avatar:"mm",
+        placeholder: "Just go go",
+        guest_info:guest_info,
+        pageSize:"10"
+    })
+</script>
+
+</body>
+</html>
