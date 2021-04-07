@@ -6,18 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。 PS：1.66G的数据并不大，大约有1.9亿行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
+    <meta name="description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。  PS：1.66G的数据并不大，大约有两千万行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
 <meta name="keywords" content="vaex pandas">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记录使用使用Vaex读取超大文件">
 <meta property="og:url" content="http://bsi.me/2020/06/24/vaexreadbigfile/index.html">
 <meta property="og:site_name" content="硅步致千里">
-<meta property="og:description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。 PS：1.66G的数据并不大，大约有1.9亿行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
+<meta property="og:description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。  PS：1.66G的数据并不大，大约有两千万行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-06-24T10:43:42.309Z">
+<meta property="og:image" content="https://jolie.oss-cn-hangzhou.aliyuncs.com/F1D44EE9-6402-4B17-A349-14FC3832D1BB.png">
+<meta property="og:updated_time" content="2020-06-24T10:55:19.178Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="记录使用使用Vaex读取超大文件">
-<meta name="twitter:description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。 PS：1.66G的数据并不大，大约有1.9亿行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
+<meta name="twitter:description" content="先放测试结果： 使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。  PS：1.66G的数据并不大，大约有两千万行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。 项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。 在这个过程中遇到的问题主要就是：  win">
+<meta name="twitter:image" content="https://jolie.oss-cn-hangzhou.aliyuncs.com/F1D44EE9-6402-4B17-A349-14FC3832D1BB.png">
     
     
         
@@ -76,6 +78,8 @@
     <br>
     <span id="actions">
       <ul>
+        
+        <li><a class="icon" href="/2021/04/07/lua-weaktable/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" href="/2019/09/04/python裁剪圆形图片抗锯齿/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -151,7 +155,8 @@
   <div class="content" itemprop="articleBody">
     <p>先放测试结果：</p>
 <pre><code>使用vaex读取hdf5数据，文件大小约1.66G，读取时间是0.57ms。
-</code></pre><p>PS：1.66G的数据并不大，大约有1.9亿行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。</p>
+</code></pre><p><img src="https://jolie.oss-cn-hangzhou.aliyuncs.com/F1D44EE9-6402-4B17-A349-14FC3832D1BB.png" alt=""></p>
+<p>PS：1.66G的数据并不大，大约有两千万行，可以用pandas去读取。我做这个就是想把vaex导出hdf5，在读取这一个整套流程走通。</p>
 <p>项目里要处理很多excel文件。我的思路是将他们先转成hdf5格式，在整合成一个大的hdf5文件。这样处理数据更灵活一些。</p>
 <p>在这个过程中遇到的问题主要就是：</p>
 <ol>
@@ -235,7 +240,7 @@
         
         <footer id="footer">
   <div class="footer-left">
-    Copyright &copy; 2020 John Doe
+    Copyright &copy; 2021 John Doe
   </div>
   <div class="footer-right">
     <nav>
