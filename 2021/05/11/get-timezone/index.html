@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="GMT（格林尼治时间）几乎是等同于 UTC (协调世界时,是个标准时间) 更严格一点应该是GMT = UTC + 0,它刚好在0时区。所以计算本地时区的时候，只要能知道0时区的时间，自然就可以算出本地时区了。 lua的实现方法lua的os.date ([format [, time]]函数，获得是UTC时间。默认是本地的UTC时间。 format参数如果 format 以 ‘!’ 打头，则返回的是">
+<meta name="keywords" content="timezone,os.date">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何求得本地时区">
+<meta property="og:url" content="http://bsi.me/2021/05/11/get-timezone/index.html">
+<meta property="og:site_name" content="硅步致千里">
+<meta property="og:description" content="GMT（格林尼治时间）几乎是等同于 UTC (协调世界时,是个标准时间) 更严格一点应该是GMT = UTC + 0,它刚好在0时区。所以计算本地时区的时候，只要能知道0时区的时间，自然就可以算出本地时区了。 lua的实现方法lua的os.date ([format [, time]]函数，获得是UTC时间。默认是本地的UTC时间。 format参数如果 format 以 ‘!’ 打头，则返回的是">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-05-11T02:56:35.464Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何求得本地时区">
+<meta name="twitter:description" content="GMT（格林尼治时间）几乎是等同于 UTC (协调世界时,是个标准时间) 更严格一点应该是GMT = UTC + 0,它刚好在0时区。所以计算本地时区的时候，只要能知道0时区的时间，自然就可以算出本地时区了。 lua的实现方法lua的os.date ([format [, time]]函数，获得是UTC时间。默认是本地的UTC时间。 format参数如果 format 以 ‘!’ 打头，则返回的是">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>如何求得本地时区</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/04/07/lua-weaktable/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2021/05/11/get-timezone/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2021/05/11/get-timezone/&text=如何求得本地时区"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2021/05/11/get-timezone/&is_video=false&description=如何求得本地时区"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=如何求得本地时区&body=Check out this article: http://bsi.me/2021/05/11/get-timezone/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2021/05/11/get-timezone/&name=如何求得本地时区&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#lua的实现方法"><span class="toc-number">1.</span> <span class="toc-text">lua的实现方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#python的实现方法"><span class="toc-number">2.</span> <span class="toc-text">python的实现方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JavaScript的实现方法"><span class="toc-number">3.</span> <span class="toc-text">JavaScript的实现方法</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        如何求得本地时区
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">硅步致千里</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-05-11T02:55:37.000Z" itemprop="datePublished">2021-05-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/os-date/">os.date</a>, <a class="tag-link" href="/tags/timezone/">timezone</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>GMT（格林尼治时间）几乎是等同于 UTC (协调世界时,是个标准时间)</p>
+<p>更严格一点应该是<code>GMT = UTC + 0</code>,它刚好在0时区。所以计算本地时区的时候，只要能知道0时区的时间，自然就可以算出本地时区了。</p>
+<h3 id="lua的实现方法"><a href="#lua的实现方法" class="headerlink" title="lua的实现方法"></a>lua的实现方法</h3><p>lua的<code>os.date ([format [, time]]</code>函数，获得是UTC时间。默认是本地的UTC时间。</p>
+<p>format参数如果 format 以 ‘!’ 打头，则返回的是0时区的时间。就是GMT时间。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local timezone = os.difftime(os.time() ， os.time(os.date(&quot;!*t&quot;)))/3600</span><br></pre></td></tr></table></figure>
+<p>输出结果8.0，就是东八区。</p>
+<h3 id="python的实现方法"><a href="#python的实现方法" class="headerlink" title="python的实现方法"></a>python的实现方法</h3><p>在python中，时区转换就很方便。如果是用上面的思路，先求本地时间，在求utc0时区时间。相减之后求时区。代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; from datetime import datetime</span><br><span class="line">&gt;&gt; t = datetime.now()</span><br><span class="line">&gt;&gt; datetime.fromtimestamp(t.timestamp())</span><br><span class="line">datetime.datetime(2021, 5, 11, 10, 14, 36, 297781)</span><br><span class="line">&gt;&gt; datetime.utcfromtimestamp(t.timestamp())</span><br><span class="line">datetime.datetime(2021, 5, 11, 2, 14, 36, 297781)</span><br></pre></td></tr></table></figure>
+<p>通过上面代码，可以看出同一个时间戳，在0时区和本地时区之间差了8个小时。正是我们的本地时区东八区。</p>
+<p>不过python中获取时区的方法很多，最简单的就是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; import time</span><br><span class="line">&gt;&gt; time.strftime(&apos;%z&apos;)</span><br><span class="line">&apos;+0800&apos;</span><br><span class="line">&gt;&gt; time.localtime().tm_zone</span><br><span class="line">&apos;CST&apos;</span><br><span class="line">&gt;&gt; time.localtime().tm_gmtoff/3600</span><br><span class="line">8.0</span><br></pre></td></tr></table></figure>
+<p>CST就是中国标准时间。<code>tm_gmtoff</code>就是以秒为单位的UTC以东偏离的时间。</p>
+<h3 id="JavaScript的实现方法"><a href="#JavaScript的实现方法" class="headerlink" title="JavaScript的实现方法"></a>JavaScript的实现方法</h3><p>而在JavaScript中获取时区就更简单了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; d = new Date()</span><br><span class="line">&lt; Tue May 11 2021 10:47:34 GMT+0800 (中国标准时间) </span><br><span class="line">&gt; d.getTimezoneOffset()</span><br><span class="line">&lt; -480</span><br></pre></td></tr></table></figure>
+<p> 这个返回的-480，就是本地时间与utc0时区的偏移时间，以秒为单位。但是为什么是负数呢？<br> 因为它的计算公式是<code>(0时区 - 本地时区) * 60min</code>,因此的出的是负数。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+    	
+	        <div id="disqus_thread">
+	            <noscript>Please enable JavaScript to view the comments.</noscript>
+	        </div>
+        
+		
+			<div class="vcomment"></div>
+		
+	</div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#lua的实现方法"><span class="toc-number">1.</span> <span class="toc-text">lua的实现方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#python的实现方法"><span class="toc-number">2.</span> <span class="toc-text">python的实现方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JavaScript的实现方法"><span class="toc-number">3.</span> <span class="toc-text">JavaScript的实现方法</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2021/05/11/get-timezone/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2021/05/11/get-timezone/&text=如何求得本地时区"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2021/05/11/get-timezone/&is_video=false&description=如何求得本地时区"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=如何求得本地时区&body=Check out this article: http://bsi.me/2021/05/11/get-timezone/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2021/05/11/get-timezone/&title=如何求得本地时区"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2021/05/11/get-timezone/&name=如何求得本地时区&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2021 John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+
+<!-- Valine Comments -->
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+<script type="text/javascript">
+    var notify = 'false' == true ? true : false;
+    var verify = 'false' == true ? true : false;
+    var GUEST_INFO = ['nick','mail','link'];
+    var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+      return GUEST_INFO.indexOf(item) > -1
+    });
+    guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+    new Valine({
+        el: '.vcomment',
+        notify: notify,
+        verify: verify,
+        appId: "dliMgeTOubtLe8wHJNuY46dt-gzGzoHsz",
+        appKey: "yaD5qqyR6lAUYllUokFlGExm",
+        avatar:"mm",
+        placeholder: "Just go go",
+        guest_info:guest_info,
+        pageSize:"10"
+    })
+</script>
+
+</body>
+</html>
