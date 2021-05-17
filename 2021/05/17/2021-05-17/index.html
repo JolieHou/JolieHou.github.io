@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="协程和lua中的协程十分相似。但也有一些细微的差别。首先我们需要明确的一个概念是：协程不是线程。线程可以看成是系统的子程序，协程呢，可以理解为线程的子程序。协程和主程序在一个线程里面交替执行。控制权由程序自己控制。 先看一个例子，然后在解释它是怎么执行的吧。 1234567891011121314151. var testCoroutine = function*(param) &amp;#123;2.">
+<meta name="keywords" content="异步,javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript的异步">
+<meta property="og:url" content="http://bsi.me/2021/05/17/2021-05-17/index.html">
+<meta property="og:site_name" content="硅步致千里">
+<meta property="og:description" content="协程和lua中的协程十分相似。但也有一些细微的差别。首先我们需要明确的一个概念是：协程不是线程。线程可以看成是系统的子程序，协程呢，可以理解为线程的子程序。协程和主程序在一个线程里面交替执行。控制权由程序自己控制。 先看一个例子，然后在解释它是怎么执行的吧。 1234567891011121314151. var testCoroutine = function*(param) &amp;#123;2.">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-05-17T06:37:58.601Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript的异步">
+<meta name="twitter:description" content="协程和lua中的协程十分相似。但也有一些细微的差别。首先我们需要明确的一个概念是：协程不是线程。线程可以看成是系统的子程序，协程呢，可以理解为线程的子程序。协程和主程序在一个线程里面交替执行。控制权由程序自己控制。 先看一个例子，然后在解释它是怎么执行的吧。 1234567891011121314151. var testCoroutine = function*(param) &amp;#123;2.">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>JavaScript的异步</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2021/05/11/get-timezone/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2021/05/17/2021-05-17/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2021/05/17/2021-05-17/&text=JavaScript的异步"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2021/05/17/2021-05-17/&is_video=false&description=JavaScript的异步"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaScript的异步&body=Check out this article: http://bsi.me/2021/05/17/2021-05-17/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2021/05/17/2021-05-17/&name=JavaScript的异步&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#协程"><span class="toc-number">1.</span> <span class="toc-text">协程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Promise和async-await"><span class="toc-number">2.</span> <span class="toc-text">Promise和async/await</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        JavaScript的异步
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">硅步致千里</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-05-17T06:35:59.000Z" itemprop="datePublished">2021-05-17</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/javascript/">javascript</a>, <a class="tag-link" href="/tags/异步/">异步</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>和lua中的协程十分相似。但也有一些细微的差别。<br>首先我们需要明确的一个概念是：协程不是线程。<br>线程可以看成是系统的子程序，协程呢，可以理解为线程的子程序。协程和主程序在一个线程里面交替执行。控制权由程序自己控制。</p>
+<p>先看一个例子，然后在解释它是怎么执行的吧。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">1. var testCoroutine = function*(param) &#123;</span><br><span class="line">2.    console.log(&apos;Hello!&apos;+param);</span><br><span class="line">3.    var x = yield &quot;第一次yield返回&quot;+param;</span><br><span class="line">4.    console.log(&apos;再次执行协程得到的输入: &apos; + x + &quot;,param:&quot;+param);</span><br><span class="line">5.</span><br><span class="line">6.    var y = yield &quot;第二次yield返回&quot;+param;</span><br><span class="line">7.    console.log(&apos;再次执行协程得到的输入: &apos; + y + &quot;,param:&quot;+param);</span><br><span class="line">8.    return &quot;结束&quot;</span><br><span class="line">9. &#125;</span><br><span class="line"></span><br><span class="line">cp = testCoroutine(&quot;调用1&quot;)//创建协程函数对象</span><br><span class="line">console.log(&quot;=========start===========&quot;)</span><br><span class="line">console.log(cp.next()) 	//第一次调用</span><br><span class="line">console.log(cp.next(&quot;调用2&quot;))//第二次调用</span><br><span class="line">console.log(cp.next(&quot;调用3&quot;))//第三次调用</span><br></pre></td></tr></table></figure>
+<p>得到的输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">=========start===========</span><br><span class="line">Hello!调用1</span><br><span class="line">&#123; value: &apos;第一次yield返回调用1&apos;, done: false &#125;</span><br><span class="line">再次执行协程得到的输入: 调用2,param:调用1</span><br><span class="line">&#123; value: &apos;第二次yield返回调用1&apos;, done: false &#125;</span><br><span class="line">再次执行协程得到的输入: 调用3,param:调用1</span><br><span class="line">&#123; value: &apos;结束&apos;, done: true &#125;</span><br></pre></td></tr></table></figure>
+<p>输出日志中带有<code>{}</code>表示的是子程序返回的结果。value是返回的值，done是表示子程序是否执行结束。<br>第一次创建协程函数对象的时候，发生了什么事情？<br>首先函数在第一次被调用的时候，会发生变化，变成一个<strong>Generator的迭代器</strong>。因为他使用了<code>function*</code>的语法编写。</p>
+<p>通过调用next函数，Generator函数将执行，直到遇到yield关键字返回。下次再调用next，Generator函数会从上次返回点继续执行。</p>
+<p>所以结合上面的日志，就能看出来，<code>cp = testCoroutine(&quot;调用1&quot;)</code>这一步没有让函数执行。接下来第一次调用才真的开始执行。到第三行结束返回。此时yield立即返回。此时x连执行都没有。然后第二次调用开始，此时x有值了。是<code>cp.next(&quot;调用2&quot;)</code>的参数<code>调用2</code>。然后到第6行又被yield返回。以此类推。</p>
+<p>这个和lua的协程很像。但是lua协程不是使用next执行，而是使用resume唤醒子程序。具体可以结合我的<a href="https://qiangj.cn/2019/04/07/lua-coroutine/" target="_blank" rel="noopener">这篇文章</a>一起使用。</p>
+<h2 id="Promise和async-await"><a href="#Promise和async-await" class="headerlink" title="Promise和async/await"></a>Promise和async/await</h2><p>我们知道JavaScript实现异步的方法，最常用的并不是协程而是Promise。<br>比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">const waitTimePromise = (msg,seconds) =&gt; &#123;</span><br><span class="line">  return new Promise((resolve, reject)=&gt;&#123;</span><br><span class="line">      setTimeout(()=&gt; &#123;</span><br><span class="line">      	console.log(msg)</span><br><span class="line">        resolve(`等待$&#123;seconds&#125;s`)</span><br><span class="line">      &#125;, seconds * 1000)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">waitTimePromise(&quot;waitTimePromise第一次调用&quot;,1).then((result)=&gt;&#123;</span><br><span class="line">  console.log(&quot;第一个then的输出，Promise的输出&quot;+result)</span><br><span class="line">  return waitTimePromise(&quot;waitTimePromise第二次调用&quot;,2)</span><br><span class="line">&#125;)</span><br><span class="line">.then((result)=&gt;&#123;</span><br><span class="line">  console.log(&quot;第二个then的输出，Promise的输出&quot;+result);</span><br><span class="line">&#125;).catch((err)=&gt;&#123;</span><br><span class="line">  console.log(err);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">waitTimePromise第一次调用</span><br><span class="line">第一个then的输出，Promise的输出等待1s</span><br><span class="line">waitTimePromise第二次调用</span><br><span class="line">第二个then的输出，Promise的输出等待2s</span><br></pre></td></tr></table></figure>
+<p>Promise的这种链式执行方法，极大的降低了异步理解的成本。但是如果有很多任务需要执行，就会有一堆then的执行语句。代码不清晰。因此JavaScript又推出了包装了Promise的语法糖。<code>async/await</code>.<br>async修饰一个函数。就可以将一个函数变成一个返回成一个Promise类型的函数。这样上面的代码就可以改成下面的样子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">async executefuncs()&#123;</span><br><span class="line">	await dosomething1();</span><br><span class="line">	await dosomething2();</span><br><span class="line">	await dosomething3();</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>await只能在async修饰的函数中使用。一旦出现await就是暂停子程序的执行，转而执行主程序。直到await等待的任务执行完成。又继续下一行执行。<br>但是这样有个麻烦的地方就是每一行都在等待。上面三个await，假设每个await需要2s。就要阻塞6s。<br>有什么好办法解决吗？还真的有。那就是将函数返回先赋值给变量。然后await变量。此时三个await就只总共需要2s。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">async executefuncs()&#123;</span><br><span class="line">	let p1 = dosomething1();</span><br><span class="line">	let p2 = dosomething2();</span><br><span class="line">	let p3 = dosomething3();</span><br><span class="line">	</span><br><span class="line">	await p1;</span><br><span class="line">	await p2;</span><br><span class="line">	await p3;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总的来说async/await相比Promise更灵活一些。代码也简洁很多。但是本质上还是Promise。所以对Promise了解更多，才能更好的使用async/await。</p>
+<p>好了，下次再来说说c++的Promise吧。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+    	
+	        <div id="disqus_thread">
+	            <noscript>Please enable JavaScript to view the comments.</noscript>
+	        </div>
+        
+		
+			<div class="vcomment"></div>
+		
+	</div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#协程"><span class="toc-number">1.</span> <span class="toc-text">协程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Promise和async-await"><span class="toc-number">2.</span> <span class="toc-text">Promise和async/await</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://bsi.me/2021/05/17/2021-05-17/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://bsi.me/2021/05/17/2021-05-17/&text=JavaScript的异步"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://bsi.me/2021/05/17/2021-05-17/&is_video=false&description=JavaScript的异步"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaScript的异步&body=Check out this article: http://bsi.me/2021/05/17/2021-05-17/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://bsi.me/2021/05/17/2021-05-17/&title=JavaScript的异步"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://bsi.me/2021/05/17/2021-05-17/&name=JavaScript的异步&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2021 John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/projects/">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+
+<!-- Valine Comments -->
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+<script type="text/javascript">
+    var notify = 'false' == true ? true : false;
+    var verify = 'false' == true ? true : false;
+    var GUEST_INFO = ['nick','mail','link'];
+    var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+      return GUEST_INFO.indexOf(item) > -1
+    });
+    guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+    new Valine({
+        el: '.vcomment',
+        notify: notify,
+        verify: verify,
+        appId: "dliMgeTOubtLe8wHJNuY46dt-gzGzoHsz",
+        appKey: "yaD5qqyR6lAUYllUokFlGExm",
+        avatar:"mm",
+        placeholder: "Just go go",
+        guest_info:guest_info,
+        pageSize:"10"
+    })
+</script>
+
+</body>
+</html>
